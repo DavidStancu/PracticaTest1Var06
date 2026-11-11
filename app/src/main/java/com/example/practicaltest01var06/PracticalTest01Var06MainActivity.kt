@@ -9,8 +9,6 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import kotlin.random.Random
 
 class PracticalTest01Var06MainActivity : AppCompatActivity() {
@@ -23,12 +21,15 @@ class PracticalTest01Var06MainActivity : AppCompatActivity() {
     private lateinit var randomButton: Button
     private lateinit var playButton: Button
 
+    private var totalScore = 0
+
     private val possibleValues = listOf("1", "2", "3", "*")
 
     private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             val score = result.data?.getIntExtra("score", 0) ?: 0
-            Toast.makeText(this, "Score: $score", Toast.LENGTH_SHORT).show()
+            totalScore += score
+            Toast.makeText(this, "Total Score: $totalScore", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -44,6 +45,13 @@ class PracticalTest01Var06MainActivity : AppCompatActivity() {
         hold3 = findViewById(R.id.hold3_check_box)
         randomButton = findViewById(R.id.random_button)
         playButton = findViewById(R.id.play_button)
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("totalScore")) {
+                totalScore = savedInstanceState.getInt("totalScore")
+                Toast.makeText(this, "Score: $totalScore", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         randomButton.setOnClickListener {
             if (!hold1.isChecked) {
@@ -62,20 +70,16 @@ class PracticalTest01Var06MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Valori: $val1, $val2, $val3", Toast.LENGTH_SHORT).show()
         }
 
-
         playButton.setOnClickListener {
             var holdCount = 0
-            if (hold1.isChecked)
-                holdCount++
-            if (hold2.isChecked)
-                holdCount++
-            if (hold3.isChecked) 
-                holdCount++
+            if (hold1.isChecked) holdCount++
+            if (hold2.isChecked) holdCount++
+            if (hold3.isChecked) holdCount++
 
             val score = when (holdCount) {
                 0 -> 100
                 1 -> 50
-                2 -> 50
+                2 -> 10
                 else -> 0
             }
 
@@ -85,5 +89,15 @@ class PracticalTest01Var06MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("totalScore", totalScore)
+    }
 
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        if (savedInstanceState.containsKey("totalScore")) {
+            totalScore = savedInstanceState.getInt("totalScore")
+        }
+    }
 }
